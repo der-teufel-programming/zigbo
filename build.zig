@@ -7,14 +7,14 @@ pub fn build(b: *std.Build) void {
 
     const lib = b.addStaticLibrary(.{
         .name = "zigbo",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
-    lib.install();
+    b.installArtifact(lib);
 
     const main_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&main_tests.step);
 
     const stdout = std.io.getStdOut().writer();
-    const build_graph = zigbo.graphOutputStep(b, stdout);
+    const build_graph = zigbo.graphOutputStep(b, stdout.any());
     build_graph.setCustomStepCallback(customCallback);
 
     const build_graph_step = b.step("graph", "Output the build graph as a mermaid diagram");
